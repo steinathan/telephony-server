@@ -23,7 +23,7 @@ class RedisConfigManager(BaseConfigManager):
         logger.debug(f"Getting config for {conversation_id}")
         raw_config = await self.redis.get(conversation_id)  # type: ignore
         if raw_config:
-            return BaseCallConfig.parse_raw(raw_config)
+            return BaseCallConfig.model_validate(raw_config)
         return None
 
     async def delete_config(self, conversation_id):

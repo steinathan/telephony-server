@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Literal, Optional
-from telephony.models.model import TypedModel
+
+from telephony.models.model import BaseModel
 
 class CallConfigType(str, Enum):
     BASE = "call_config_base"
@@ -10,10 +11,7 @@ class CallConfigType(str, Enum):
 
 PhoneCallDirection = Literal["inbound", "outbound"]
 
-class BaseCallConfig(TypedModel, type=CallConfigType.BASE.value):  # type: ignore
-    # transcriber_config: TranscriberConfig
-    # agent_config: AgentConfig
-    # synthesizer_config: SynthesizerConfig
+class BaseCallConfig(BaseModel):  # type: ignore
     from_phone: str
     to_phone: str
     sentry_tags: dict[str, str] = {}

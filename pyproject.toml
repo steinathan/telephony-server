@@ -8,11 +8,13 @@ authors = [
     { name = "Navicstein Chinemerem", email = "navicsteinrotiv@gmail.com" },
 ]
 dependencies = [
-    "aiohttp>=3.11.11",
+    "aiohttp>=3.11.10",
+    "cuid2>=2.0.1",
     "fastapi>=0.115.8",
     "httpx>=0.28.1",
+    "jay-ai>=0.7.1",
     "loguru>=0.7.3",
-    "openai>=1.60.2",
+    "openai>=1.58.1",
     "pydantic>=2.10.6",
     "python-dotenv>=1.0.1",
     "redis>=5.2.1",

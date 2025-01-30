@@ -1,12 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, Literal, Optional, Union
-from telephony.models.model import TypedModel
 from telephony.models.model import BaseModel
-from telephony.constants.constants import (
-    DEFAULT_AUDIO_ENCODING,
-    DEFAULT_CHUNK_SIZE,
-    DEFAULT_SAMPLING_RATE,
-)
 
 
 class TelephonyProviderConfig(BaseModel):
@@ -86,7 +80,8 @@ class CallConfigType(str, Enum):
 PhoneCallDirection = Literal["inbound", "outbound"]
 
 
-class BaseCallConfig(TypedModel, type=CallConfigType.BASE.value):  # type: ignore
+class BaseCallConfig(BaseModel):  # type: ignore
+    type: str = CallConfigType.BASE.value
     from_phone: str
     to_phone: str
     sentry_tags: Dict[str, str] = {}
@@ -103,18 +98,23 @@ class BaseCallConfig(TypedModel, type=CallConfigType.BASE.value):  # type: ignor
         raise NotImplementedError
 
 
-class TwilioCallConfig(BaseCallConfig, type=CallConfigType.TWILIO.value):  # type: ignore
+class TwilioCallConfig(BaseCallConfig):  # type: ignore
+    type: str = CallConfigType.TWILIO.value
     twilio_config: TwilioConfig
     twilio_sid: str
 
 
-class VonageCallConfig(BaseCallConfig, type=CallConfigType.VONAGE.value):  # type: ignore
+class VonageCallConfig(BaseCallConfig):  # type: ignore
+    type: str = CallConfigType.VONAGE.value
     vonage_config: VonageConfig
     vonage_uuid: str
     output_to_speaker: bool = False
 
-class PlivoCallConfig(BaseCallConfig, type=CallConfigType.PLIVO.value):  # type: ignore
+
+class PlivoCallConfig(BaseCallConfig):  # type: ignore
+    type: str = CallConfigType.PLIVO.value
     plivo_config: PlivoConfig
     plivo_uuid: str
+
 
 TelephonyConfig = Union[TwilioConfig, VonageConfig, PlivoConfig]

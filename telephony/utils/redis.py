@@ -26,10 +26,9 @@ def initialize_redis(retries: int = 1):
         username=os.environ.get("REDISUSER", None),
         password=os.environ.get("REDISPASSWORD", None),
         decode_responses=True,
-        retry=retry, # type: ignore
+        retry=retry,  # type: ignore
         ssl=bool(os.environ.get("REDISSSL", False)),
         ssl_cert_reqs="none",
         retry_on_error=[ConnectionError, TimeoutError],
         health_check_interval=30,
     )
-
