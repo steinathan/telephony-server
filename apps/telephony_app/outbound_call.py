@@ -6,6 +6,7 @@ from telephony.config_manager.redis_config_manager import RedisConfigManager
 from telephony.models.telephony import TwilioConfig
 from telephony.outbound_call import OutboundCall
 
+from streaming_providers.constants import StreamingProviderType
 
 load_dotenv()
 
@@ -26,6 +27,9 @@ async def main():
             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
             auth_token=os.environ["TWILIO_AUTH_TOKEN"],
         ),
+        telephony_params={},
+        streaming_provider=StreamingProviderType.JAY,
+        streaming_provider_params={},
     )
 
     input("Press enter to start call...")

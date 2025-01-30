@@ -1,8 +1,8 @@
 # Telephony Server
 
-> This project is heavily inspired by [Vocode](https://www.vocode.dev). If you like it, consider checking out Vocode.
+> This project is a prototype on how possible it is, it's heavily inspired by [Vocode](https://www.vocode.dev). If you like it, consider checking out Vocode.
 
-## Overview
+## Overview & Idea
 
 **Telephony Server** is a powerful bridge that connects telephony providers ([Twilio](https://www.twilio.com), [Vonage](https://www.vonage.com), [Plivo](https://www.plivo.com), etc.) with real-time communication platforms ([LiveKit](https://www.livekit.io), [Jay.so](https://www.jay.so), [Pipecat](https://www.pipecat.ai), etc.). It enables seamless call routing, robust metrics collection, and observability features for enhanced telephony operations.
 

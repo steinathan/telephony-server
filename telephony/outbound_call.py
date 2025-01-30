@@ -11,6 +11,7 @@ from telephony.config_manager.base_config_manager import (
 )
 from telephony.models.telephony import TwilioCallConfig, TwilioConfig
 from telephony.models.telephony import TelephonyConfig
+from streaming_providers.constants import StreamingProviderType
 
 
 class OutboundCall:
@@ -22,6 +23,8 @@ class OutboundCall:
         config_manager: BaseConfigManager,
         conversation_id: str,
         telephony_config: TelephonyConfig,
+        streaming_provider: StreamingProviderType,
+        streaming_provider_params: dict = {},
         telephony_params: Optional[Dict[str, str]] = None,
         sentry_tags: Dict[str, str] = {},
         digits: Optional[
@@ -38,6 +41,8 @@ class OutboundCall:
         self.telephony_client = self.create_telephony_client()
         self.sentry_tags = sentry_tags
         self.digits = digits
+        self.streaming_provider = streaming_provider
+        self.streaming_provider_params = streaming_provider_params
 
     def create_telephony_client(self) -> AbstractTelephonyClient:
         if isinstance(self.telephony_config, TwilioConfig):
