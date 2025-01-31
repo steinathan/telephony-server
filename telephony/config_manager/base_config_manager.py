@@ -12,6 +12,7 @@ class CallConfigType(str, Enum):
 PhoneCallDirection = Literal["inbound", "outbound"]
 
 class BaseCallConfig(BaseModel):  # type: ignore
+    type: CallConfigType = CallConfigType.BASE
     from_phone: str
     to_phone: str
     sentry_tags: dict[str, str] = {}
