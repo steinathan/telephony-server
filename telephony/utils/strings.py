@@ -16,6 +16,6 @@ def get_chunk_size_per_second(audio_encoding: AudioEncoding, sampling_rate: int)
 
 
 def create_conversation_id(direction: str):
-    CUID_GENERATOR: Cuid = Cuid(length=5)
+    CUID_GENERATOR: Cuid = Cuid(length=15)
 
     return f"{direction}_{CUID_GENERATOR.generate()}"

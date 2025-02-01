@@ -7,11 +7,17 @@ from fastapi import APIRouter, Form, Request, Response
 from loguru import logger
 from pydantic import BaseModel
 
-from streaming_providers.abstract import AbstractStreamingProviderFactory
+from streaming_providers.default_factory import (
+    AbstractStreamingProviderFactory,
+    DefaultStreamingProviderFactory,
+)
 from streaming_providers.models import StreamingProviderConfig
 from telephony.clients.abstract import AbstractTelephonyClient
 from telephony.clients.twilio_client import TwilioClient
-from telephony.config_manager.base_config_manager import BaseCallConfig, BaseConfigManager
+from telephony.config_manager.base_config_manager import (
+    BaseCallConfig,
+    BaseConfigManager,
+)
 from telephony.models.events import RecordingEvent
 from telephony.models.telephony import TwilioCallConfig, TwilioConfig
 from telephony.server.router import CallsRouter
@@ -21,7 +27,6 @@ from telephony.utils.strings import create_conversation_id
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
     url: str
-    
 
 
 class TwilioInboundCallConfig(AbstractInboundCallConfig):
@@ -34,7 +39,7 @@ class TelephonyServer:
         base_url: str,
         config_manager: BaseConfigManager,
         streaming_provider_config: StreamingProviderConfig,
-        streaming_factory: AbstractStreamingProviderFactory,
+        streaming_factory: AbstractStreamingProviderFactory = DefaultStreamingProviderFactory(),
         inbound_call_configs: List[AbstractInboundCallConfig] = [],
         events_manager: Optional[EventsManager] = None,
     ):
@@ -103,6 +108,7 @@ class TelephonyServer:
             twilio_to: str = Form(alias="To"),
         ) -> Response:
             call_config = TwilioCallConfig(
+                streaming_provider_config=self.steaming_provider_config,
                 twilio_config=twilio_config,
                 twilio_sid=twilio_sid,
                 from_phone=twilio_from,
@@ -110,9 +116,7 @@ class TelephonyServer:
                 direction="inbound",
             )
             conversation_id = create_conversation_id("inbound")
-            await self.config_manager.save_config(
-                conversation_id, typing.cast(BaseCallConfig, call_config)
-            )
+            await self.config_manager.save_config(conversation_id, call_config)
             twilio_client = TwilioClient(
                 base_url=self.base_url, maybe_twilio_config=twilio_config
             )

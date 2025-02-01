@@ -4,6 +4,7 @@ from fastapi import WebSocket
 
 from streaming_providers.models import StreamingProviderConfig
 from telephony.config_manager.base_config_manager import BaseConfigManager
+from telephony.models.telephony import BaseCallConfig
 from telephony.utils.events_manager import EventsManager
 
 
@@ -11,6 +12,7 @@ class BaseStreamingProvider(ABC):
     def __init__(
         self,
         websocket: WebSocket,
+        call_config: BaseCallConfig,
         streaming_provider_config: StreamingProviderConfig,
         config_manager: BaseConfigManager,
         events_manager: EventsManager | None = None,

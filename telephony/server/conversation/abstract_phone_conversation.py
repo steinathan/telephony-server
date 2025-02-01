@@ -83,6 +83,9 @@ class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
     @abstractmethod
     async def attach_ws_and_start(self, ws: WebSocket):
         pass
+    
+    async def start(self):
+        await self.streaming_provider.start()
 
     async def terminate(self):
         self.events_manager.publish_event(PhoneCallEndedEvent(conversation_id=self.id))

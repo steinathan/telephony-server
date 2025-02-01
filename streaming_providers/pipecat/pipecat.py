@@ -17,7 +17,7 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 
-from telephony.config_manager.base_config_manager import BaseConfigManager
+from telephony.config_manager.base_config_manager import BaseCallConfig, BaseConfigManager
 from telephony.utils.events_manager import EventsManager
 
 
@@ -33,25 +33,21 @@ class PipecatStreamingProvider(BaseStreamingProvider):
     def __init__(
         self,
         websocket: WebSocket,
+        call_config: BaseCallConfig,
         provider_config: PipecatStreamingConfig,
         config_manager: BaseConfigManager,
         events_manager: EventsManager | None = None,
     ):
-        super().__init__(websocket, provider_config, config_manager, events_manager)
+        super().__init__(websocket,call_config, provider_config, config_manager, events_manager)
 
+        self.call_config = call_config
         self.provider_config = provider_config
-        self.llm_model = provider_config.llm_model or "gpt-4o"
-        self.openai_api_key = (
-            provider_config.openai_api_key or os.environ["OPENAI_COMPATIBLE_API_KEY"]
-        )
-        self.deepgram_api_key = (
-            provider_config.deepgram_api_key or os.environ["DEEPGRAM_API_KEY"]
-        )
-        self.elevenlabs_api_key = (
-            provider_config.elevenlabs_api_key or os.environ["ELEVENLABS_API_KEY"]
-        )
+        self.config_manager = config_manager
+        
 
     async def start(self):
+        stream_id = self.call_config.twilio_id # type: ignore
+        
         transport = FastAPIWebsocketTransport(
             websocket=self.websocket,
             params=FastAPIWebsocketParams(
@@ -60,7 +56,7 @@ class PipecatStreamingProvider(BaseStreamingProvider):
                 vad_enabled=True,
                 vad_analyzer=SileroVADAnalyzer(),
                 vad_audio_passthrough=True,
-                serializer=TwilioFrameSerializer(stream_sid),
+                serializer=TwilioFrameSerializer(stream_id),
             ),
         )
 

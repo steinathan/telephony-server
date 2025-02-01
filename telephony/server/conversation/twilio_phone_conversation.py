@@ -16,7 +16,7 @@ from telephony.server.conversation.abstract_phone_conversation import AbstractPh
 from telephony.server.output_devices.twilio_output_device import ChunkFinishedMarkMessage, TwilioOutputDevice
 from telephony.server.state_manager.phone_state_manager import PhoneConversationStateManager
 from telephony.utils.events_manager import EventsManager
-from telephony.config_manager.base_config_manager import PhoneCallDirection
+from telephony.models.telephony import PhoneCallDirection
 
 class TwilioPhoneConversationWebsocketAction(Enum):
     CLOSE_WEBSOCKET = 1
@@ -132,8 +132,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):  #
             return TwilioPhoneConversationWebsocketAction.CLOSE_WEBSOCKET
         return None
 
-    def start(self):
-        raise NotImplementedError
 
     def consume_nonblocking(self, item):
         raise NotImplementedError

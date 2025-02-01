@@ -7,12 +7,10 @@ from streaming_providers.models import StreamingProviderConfig
 from telephony.clients.abstract import AbstractTelephonyClient
 from telephony.clients.twilio_client import TwilioClient
 from telephony.config_manager.base_config_manager import (
-    BaseCallConfig,
     BaseConfigManager,
 )
 from telephony.models.telephony import TwilioCallConfig, TwilioConfig
 from telephony.models.telephony import TelephonyConfig
-from streaming_providers.constants import StreamingProviderType
 
 
 class OutboundCall:
@@ -69,13 +67,14 @@ class OutboundCall:
                 to_phone=self.to_phone,
                 sentry_tags=self.sentry_tags,
                 telephony_params=self.telephony_params,
+                streaming_provider_config=self.streaming_provider_config,
                 direction="outbound",
             )
         else:
             raise ValueError("Unknown telephony client")
         await self.config_manager.save_config(
             conversation_id=self.conversation_id,
-            config=typing.cast(BaseCallConfig, call_config),
+            config=call_config,
         )
 
     async def end(self):

@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from loguru import logger
@@ -23,7 +24,8 @@ class RedisConfigManager(BaseConfigManager):
         logger.debug(f"Getting config for {conversation_id}")
         raw_config = await self.redis.get(conversation_id)  # type: ignore
         if raw_config:
-            return BaseCallConfig.model_validate(raw_config)
+            # TODO: fix parsing issue with v2 pydantic
+            return BaseCallConfig.parse_raw(raw_config)
         return None
 
     async def delete_config(self, conversation_id):

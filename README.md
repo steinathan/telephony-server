@@ -1,7 +1,5 @@
 # Telephony Server
 
-> Psst! I'm looking for my next employer. If you're hiring within the VoiceAI/Agent-ish-llm space, kindly reach out to me on [LinkedIn](https://www.linkedin.com/in/navicstein). If you like my work, consider buying me a coffee at [Buy Me a Coffee](https://www.buymeacoffee.com/navicstein).
-
 ## Overview & Idea
 
 **Telephony Server** is a powerful bridge that connects telephony providers ([Twilio](https://www.twilio.com), [Vonage](https://www.vonage.com), [Plivo](https://www.plivo.com), etc.) with real-time communication platforms ([LiveKit](https://www.livekit.io), [Jay.so](https://www.jay.so), [Pipecat](https://www.pipecat.ai), etc.). It enables seamless call routing, robust metrics collection, and observability features for enhanced telephony operations.
@@ -50,7 +48,7 @@ LIVEKIT_API_SECRET=your_livekit_secret
 ### Installation Steps
 
 ```bash
-uv sync
+uv sync --frozen
 ```
 
 ## Usage (Work In Progress)
@@ -169,50 +167,6 @@ if __name__ == "__main__":
 
 ```sh
 $ python -m apps.telephony_app.outbound_call
-```
-
-### API Endpoints (coming soon)
-
-#### 1. Start a Call
-
-```http
-POST /api/call/start
-```
-
-**Request Body:**
-
-```json
-{
-  "provider": "twilio",
-  "from": "+1234567890",
-  "to": "+0987654321",
-  "route_to": "livekit"
-}
-```
-
-**Response:**
-
-```json
-{
-  "call_id": "abc123",
-  "status": "initiated"
-}
-```
-
-#### 2. Get Call Metrics
-
-```http
-GET /api/call/metrics
-```
-
-**Response:**
-
-```json
-{
-  "total_calls": 100,
-  "active_calls": 10,
-  "failed_calls": 5
-}
 ```
 
 ## Deployment

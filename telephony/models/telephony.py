@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, Literal, Optional, Union
-from telephony.models.model import BaseModel
+from streaming_providers.models import StreamingProviderConfig
+from telephony.models.model import BaseModel, TypedModel
 
 
 class TelephonyProviderConfig(BaseModel):
@@ -80,8 +81,9 @@ class CallConfigType(str, Enum):
 PhoneCallDirection = Literal["inbound", "outbound"]
 
 
-class BaseCallConfig(BaseModel):  # type: ignore
-    type: str = CallConfigType.BASE.value
+class BaseCallConfig(TypedModel, type=CallConfigType.BASE.value):  
+    model_config = {"extra": "allow"}
+    streaming_provider_config: StreamingProviderConfig
     from_phone: str
     to_phone: str
     sentry_tags: Dict[str, str] = {}
@@ -89,30 +91,19 @@ class BaseCallConfig(BaseModel):  # type: ignore
     telephony_params: Optional[Dict[str, str]] = None
     direction: PhoneCallDirection
 
-    @staticmethod
-    def default_transcriber_config():
-        raise NotImplementedError
 
-    @staticmethod
-    def default_synthesizer_config():
-        raise NotImplementedError
-
-
-class TwilioCallConfig(BaseCallConfig):  # type: ignore
-    type: str = CallConfigType.TWILIO.value
+class TwilioCallConfig(BaseCallConfig, type=CallConfigType.TWILIO.value):  
     twilio_config: TwilioConfig
     twilio_sid: str
 
 
-class VonageCallConfig(BaseCallConfig):  # type: ignore
-    type: str = CallConfigType.VONAGE.value
+class VonageCallConfig(BaseCallConfig, type=CallConfigType.VONAGE.value):  # type: ignore
     vonage_config: VonageConfig
     vonage_uuid: str
     output_to_speaker: bool = False
 
 
-class PlivoCallConfig(BaseCallConfig):  # type: ignore
-    type: str = CallConfigType.PLIVO.value
+class PlivoCallConfig(BaseCallConfig, type=CallConfigType.PLIVO.value):  # type: ignore
     plivo_config: PlivoConfig
     plivo_uuid: str
 

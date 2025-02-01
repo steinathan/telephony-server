@@ -84,7 +84,6 @@ class TwilioClient(AbstractTelephonyClient):
 
     def get_connection_twiml(self, conversation_id: str):
         twml = f"""
-<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
     <Stream url="wss://{self.base_url}/connect_call/{conversation_id}" />

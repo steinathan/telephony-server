@@ -2,19 +2,20 @@ import os
 from dotenv import load_dotenv
 
 
-from streaming_providers.jay.jay import JayStreamingConfig
 from streaming_providers.models import BaseMessage
+from streaming_providers.pipecat.pipecat import PipecatStreamingConfig
 from telephony.config_manager.redis_config_manager import RedisConfigManager
 from telephony.models.telephony import TwilioConfig
 from telephony.outbound_call import OutboundCall
 
 from cuid2 import Cuid
 
+from telephony.utils.strings import create_conversation_id
+
 load_dotenv()
 
 
 BASE_URL = os.environ["BASE_URL"]
-CUID_GENERATOR: Cuid = Cuid(length=5)
 
 
 agent_name = "Navi"
@@ -70,10 +71,10 @@ async def main():
     config_manager = RedisConfigManager()
 
     outbound_call = OutboundCall(
-        conversation_id=f"outbound_{CUID_GENERATOR.generate()}",
+        conversation_id=create_conversation_id("outbound"),
         base_url=BASE_URL,
-        to_phone="+2348068229xxx",
-        from_phone="+15555555555",
+        to_phone="+12097094496",
+        from_phone="+12023352748",
         config_manager=config_manager,
         telephony_config=TwilioConfig(
             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
@@ -82,10 +83,9 @@ async def main():
         telephony_params={
             "Record": "true",
             "MachineDetection": "Enable",
-            "MachineDetectionTimeout": "5",
+            "MachineDetectionTimeout": "2",
         },
-        streaming_provider_config=JayStreamingConfig(
-            agent_id="cm6icplb10002lskeiw824cfd",
+        streaming_provider_config=PipecatStreamingConfig(
             deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
             openai_api_key=os.environ["OPENAI_API_KEY"],
             elevenlabs_api_key=os.environ["ELEVENLABS_API_KEY"],

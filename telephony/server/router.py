@@ -1,11 +1,12 @@
 from typing import Optional
+import typing
 
 import sentry_sdk
 from fastapi import APIRouter, HTTPException, WebSocket
 from loguru import logger
 
-from streaming_providers.abstract import AbstractStreamingProviderFactory
 from streaming_providers.base import BaseStreamingProvider
+from streaming_providers.default_factory import AbstractStreamingProviderFactory, DefaultStreamingProviderFactory
 from streaming_providers.models import StreamingProviderConfig
 from telephony.config_manager.base_config_manager import (
     BaseCallConfig,
@@ -49,7 +50,10 @@ class CallsRouter:
         conversation_id: str,
         events_manager: Optional[EventsManager] = None,
     ) -> AbstractPhoneConversation:
-        if isinstance(call_config, TwilioCallConfig):
+        if call_config.type == "call_config_twilio":
+            # TODO: fix issues with typing
+            call_config = TwilioCallConfig(**call_config.model_dump())
+            
             return TwilioPhoneConversation(
                 streaming_provider=streaming_provider,
                 to_phone=call_config.to_phone,
@@ -78,6 +82,7 @@ class CallsRouter:
             streaming_provider = self.streaming_factory.create_streaming_provider(
                 websocket=websocket,
                 streaming_provider_config=self.streaming_provider_config,
+                call_config=call_config,
                 config_manager=self.config_manager,
                 events_manager=self.events_manager,
             )

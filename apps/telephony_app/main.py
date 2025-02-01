@@ -1,13 +1,8 @@
-# Standard library imports
 import os
-import sys
 
 from dotenv import load_dotenv
 
-# Third-party imports
 from fastapi import FastAPI
-from loguru import logger
-from pyngrok import ngrok
 
 from streaming_providers.models import BaseMessage
 from streaming_providers.pipecat.pipecat import PipecatStreamingConfig
@@ -21,7 +16,6 @@ load_dotenv()
 
 app = FastAPI()
 
-config_manager = RedisConfigManager()
 
 BASE_URL = os.getenv("BASE_URL")
 
@@ -30,24 +24,24 @@ if not BASE_URL:
 
 telephony_server = TelephonyServer(
     base_url=BASE_URL,
-    config_manager=config_manager,
+    config_manager=RedisConfigManager(),
     streaming_provider_config=PipecatStreamingConfig(
-            deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
-            openai_api_key=os.environ["OPENAI_API_KEY"],
-            elevenlabs_api_key=os.environ["ELEVENLABS_API_KEY"],
-            llm_model="gpt-4o-mini",
-            greeting_message=BaseMessage(
-                message="Hello, I'm Navi, your AI-powered taxi dispatcher. How can I help you today?"
-            ),
-            prompt_premble=BaseMessage(message="you are a friendly assistant"),
-
+        deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
+        openai_api_key=os.environ["OPENAI_API_KEY"],
+        elevenlabs_api_key=os.environ["ELEVENLABS_API_KEY"],
+        llm_model="gpt-4o-mini",
+        greeting_message=BaseMessage(
+            message="Hello, I'm Navi, your assistant. How can I help you today?"
         ),
+        prompt_premble=BaseMessage(message="you are a friendly assistant"),
+    ),
     inbound_call_configs=[
         TwilioInboundCallConfig(
             url="/twilio/inbound_call",
             twilio_config=TwilioConfig(
                 account_sid=os.environ["TWILIO_ACCOUNT_SID"],
                 auth_token=os.environ["TWILIO_AUTH_TOKEN"],
+                record=True,
             ),
         ),
     ],
