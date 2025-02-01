@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi import WebSocket
 from loguru import logger
 
+from streaming_providers.base import BaseStreamingProvider
 from telephony.clients.twilio_client import TwilioClient
 from telephony.config_manager.base_config_manager import BaseConfigManager
 from telephony.models.events import PhoneCallConnectedEvent
@@ -44,6 +45,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):  #
 
     def __init__(
         self,
+        streaming_provider: BaseStreamingProvider,
         direction: PhoneCallDirection,
         from_phone: str,
         to_phone: str,
@@ -54,10 +56,9 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):  #
         conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
         record_call: bool = False,
-        speed_coefficient: float = 1.0,
-        noise_suppression: bool = False,  # is currently a no-op
     ):
         super().__init__(
+            streaming_provider=streaming_provider,
             direction=direction,
             from_phone=from_phone,
             to_phone=to_phone,
@@ -66,7 +67,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):  #
             output_device=TwilioOutputDevice(),
             conversation_id=conversation_id,
             events_manager=events_manager,
-            speed_coefficient=speed_coefficient,
         )
         self.config_manager = config_manager
         self.twilio_config = twilio_config or TwilioConfig(

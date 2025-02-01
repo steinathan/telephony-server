@@ -9,6 +9,8 @@ from fastapi import FastAPI
 from loguru import logger
 from pyngrok import ngrok
 
+from streaming_providers.models import BaseMessage
+from streaming_providers.pipecat.pipecat import PipecatStreamingConfig
 from telephony.config_manager.redis_config_manager import RedisConfigManager
 from telephony.models.telephony import TwilioConfig
 from telephony.server.server import TelephonyServer, TwilioInboundCallConfig
@@ -29,7 +31,17 @@ if not BASE_URL:
 telephony_server = TelephonyServer(
     base_url=BASE_URL,
     config_manager=config_manager,
-    streaming_provider_config=None,
+    streaming_provider_config=PipecatStreamingConfig(
+            deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
+            openai_api_key=os.environ["OPENAI_API_KEY"],
+            elevenlabs_api_key=os.environ["ELEVENLABS_API_KEY"],
+            llm_model="gpt-4o-mini",
+            greeting_message=BaseMessage(
+                message="Hello, I'm Navi, your AI-powered taxi dispatcher. How can I help you today?"
+            ),
+            prompt_premble=BaseMessage(message="you are a friendly assistant"),
+
+        ),
     inbound_call_configs=[
         TwilioInboundCallConfig(
             url="/twilio/inbound_call",

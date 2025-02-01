@@ -5,8 +5,9 @@ import typing
 
 from fastapi import APIRouter, Form, Request, Response
 from loguru import logger
-from pydantic.v1 import BaseModel, Field
+from pydantic import BaseModel
 
+from streaming_providers.abstract import AbstractStreamingProviderFactory
 from streaming_providers.models import StreamingProviderConfig
 from telephony.clients.abstract import AbstractTelephonyClient
 from telephony.clients.twilio_client import TwilioClient
@@ -33,6 +34,7 @@ class TelephonyServer:
         base_url: str,
         config_manager: BaseConfigManager,
         streaming_provider_config: StreamingProviderConfig,
+        streaming_factory: AbstractStreamingProviderFactory,
         inbound_call_configs: List[AbstractInboundCallConfig] = [],
         events_manager: Optional[EventsManager] = None,
     ):
@@ -45,6 +47,8 @@ class TelephonyServer:
             CallsRouter(
                 base_url=base_url,
                 config_manager=self.config_manager,
+                streaming_factory=streaming_factory,
+                streaming_provider_config=self.steaming_provider_config,
                 events_manager=self.events_manager,
             ).get_router()
         )

@@ -1,5 +1,9 @@
 version = 1
 requires-python = ">=3.12"
+resolution-markers = [
+    "python_full_version >= '3.13'",
+    "python_full_version < '3.13'",
+]
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -560,6 +564,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pipecat-ai-flows"
+version = "0.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "loguru" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0e/f3/f6b18f00921b5b9dcbdfdbdef9ca5a65adab97d21704978a83920ae56c0f/pipecat_ai_flows-0.0.2.tar.gz", hash = "sha256:cd2f6848a22743918f79e78affd1cb889ce667bac9191258d43d1a07f1fc0553", size = 8694 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a5/39/56cb8fbd1d65cefa367ce445e14d6719b0e2127622ef659091f9fcfb270e/pipecat_ai_flows-0.0.2-py3-none-any.whl", hash = "sha256:963dbb124d005b8ae0d873e1367d07b482c6fb787c57bca851adc7d30f391cd8", size = 9605 },
+]
+
+[[package]]
 name = "prompt-toolkit"
 version = "3.0.50"
 source = { registry = "https://pypi.org/simple" }
@@ -830,6 +846,7 @@ dependencies = [
     { name = "loguru" },
     { name = "numpy" },
     { name = "openai" },
+    { name = "pipecat-ai-flows" },
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "redis" },
@@ -847,6 +864,7 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "numpy", specifier = ">=2.2.2" },
     { name = "openai", specifier = ">=1.58.1" },
+    { name = "pipecat-ai-flows", specifier = ">=0.0.2" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "redis", specifier = ">=5.2.1" },

@@ -4,6 +4,7 @@ from typing import Generic, Literal, Optional, TypeVar, Union
 from fastapi import WebSocket
 from loguru import logger
 
+from streaming_providers.base import BaseStreamingProvider
 from telephony.config_manager.base_config_manager import BaseConfigManager
 from telephony.models.events import PhoneCallEndedEvent
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
@@ -44,6 +45,7 @@ class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
 
     def __init__(
         self,
+        streaming_provider: BaseStreamingProvider,
         direction: PhoneCallDirection,
         from_phone: str,
         to_phone: str,
@@ -52,8 +54,8 @@ class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
         config_manager: BaseConfigManager,
         conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
-        speed_coefficient: float = 1.0,
     ):
+        self.streaming_provider = streaming_provider
         conversation_id = conversation_id
         # ctx_conversation_id.set(conversation_id)
 
