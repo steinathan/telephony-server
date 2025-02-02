@@ -8,9 +8,9 @@ from typing import List, Optional, Union
 from fastapi import WebSocket
 from fastapi.websockets import WebSocketState
 from loguru import logger
-from pydantic import BaseModel
 
 from telephony.constants.constants import DEFAULT_AUDIO_ENCODING, DEFAULT_SAMPLING_RATE
+from telephony.models.model import BaseModel
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
 from telephony.server.output_devices.audio_chunk import AudioChunk, ChunkState
 from telephony.server.worker import InterruptibleEvent
@@ -127,6 +127,7 @@ class TwilioOutputDevice(AbstractOutputDevice):
             "streamSid": self.stream_sid,
             "media": {"payload": base64.b64encode(chunk).decode("utf-8")},
         }
+        
         self._twilio_events_queue.put_nowait(json.dumps(media_message))
         mark_message = {
             "event": "mark",

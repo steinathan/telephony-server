@@ -19,6 +19,8 @@ from telephony.server.conversation.abstract_phone_conversation import (
 from telephony.server.conversation.twilio_phone_conversation import (
     TwilioPhoneConversation,
 )
+from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
+from telephony.server.output_devices.twilio_output_device import TwilioOutputDevice
 from telephony.utils.events_manager import EventsManager
 
 
@@ -48,12 +50,10 @@ class CallsRouter:
         call_config: BaseCallConfig,
         config_manager: BaseConfigManager,
         conversation_id: str,
+        device: AbstractOutputDevice,
         events_manager: Optional[EventsManager] = None,
     ) -> AbstractPhoneConversation:
-        if call_config.type == "call_config_twilio":
-            # TODO: fix issues with typing
-            call_config = TwilioCallConfig(**call_config.model_dump())
-            
+        if isinstance(call_config, TwilioCallConfig):
             return TwilioPhoneConversation(
                 streaming_provider=streaming_provider,
                 to_phone=call_config.to_phone,
@@ -65,6 +65,7 @@ class CallsRouter:
                 conversation_id=conversation_id,
                 events_manager=events_manager,
                 direction=call_config.direction,
+                device=device
             )
         else:
             raise ValueError(f"Unknown call config type {call_config.type}")
@@ -79,8 +80,10 @@ class CallsRouter:
             if not call_config:
                 raise HTTPException(status_code=400, detail="No active phone call")
             
+            device = TwilioOutputDevice(ws=websocket)
             streaming_provider = self.streaming_factory.create_streaming_provider(
                 websocket=websocket,
+                device=device, # type: ignore
                 streaming_provider_config=self.streaming_provider_config,
                 call_config=call_config,
                 config_manager=self.config_manager,
@@ -94,6 +97,7 @@ class CallsRouter:
                 config_manager=self.config_manager,
                 conversation_id=id,
                 events_manager=self.events_manager,
+                device=device
             )
 
             await phone_conversation.attach_ws_and_start(websocket)

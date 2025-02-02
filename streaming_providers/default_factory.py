@@ -8,6 +8,7 @@ from streaming_providers.pipecat.pipecat import (
     PipecatStreamingProvider,
 )
 from telephony.config_manager.base_config_manager import BaseCallConfig, BaseConfigManager
+from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
 from telephony.utils.events_manager import EventsManager
 
 
@@ -16,6 +17,7 @@ class AbstractStreamingProviderFactory(ABC):
     def create_streaming_provider(
         self,
         websocket: WebSocket,
+        device: AbstractOutputDevice,
         call_config: BaseCallConfig,
         streaming_provider_config: StreamingProviderConfig,
         config_manager: BaseConfigManager,
@@ -27,6 +29,7 @@ class DefaultStreamingProviderFactory(AbstractStreamingProviderFactory):
     def create_streaming_provider(
         self,
         websocket: WebSocket,
+        device: AbstractOutputDevice,
         call_config: BaseCallConfig,
         streaming_provider_config: StreamingProviderConfig,
         config_manager: BaseConfigManager,
@@ -35,6 +38,7 @@ class DefaultStreamingProviderFactory(AbstractStreamingProviderFactory):
         if isinstance(streaming_provider_config, PipecatStreamingConfig):
             return PipecatStreamingProvider(
                 websocket=websocket,
+                device=device,
                 call_config=call_config,
                 provider_config=streaming_provider_config,
                 config_manager=config_manager,

@@ -12,6 +12,8 @@
             "module": "uvicorn",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env",
+            "justMyCode": false,
+            "console": "externalTerminal",
             "args": [
                 "apps.telephony_app.main:app",
                 "--port", "1338",

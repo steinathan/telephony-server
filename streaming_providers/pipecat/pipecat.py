@@ -8,8 +8,7 @@ from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.serializers.twilio import TwilioFrameSerializer
-from pipecat.services.cartesia import CartesiaTTSService
+from pipecat.services.elevenlabs import ElevenLabsTTSService
 from pipecat.services.deepgram import DeepgramSTTService
 from pipecat.services.openai import OpenAILLMService
 from pipecat.transports.network.fastapi_websocket import (
@@ -17,12 +16,18 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 
-from telephony.config_manager.base_config_manager import BaseCallConfig, BaseConfigManager
+from streaming_providers.pipecat.frame_serializer import TwilioFrameSerializer
+from telephony.config_manager.base_config_manager import (
+    BaseCallConfig,
+    BaseConfigManager,
+)
+from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
 from telephony.utils.events_manager import EventsManager
 
 
-class PipecatStreamingConfig(StreamingProviderConfig):
-    type: str = "streaming_provider_pipecat"
+class PipecatStreamingConfig(
+    StreamingProviderConfig, type="streaming_provider_pipecat"
+):
     deepgram_api_key: str | None = None
     llm_model: str | None = "gpt-4o"
     openai_api_key: str | None = None
@@ -33,21 +38,30 @@ class PipecatStreamingProvider(BaseStreamingProvider):
     def __init__(
         self,
         websocket: WebSocket,
+        device: AbstractOutputDevice,
         call_config: BaseCallConfig,
         provider_config: PipecatStreamingConfig,
         config_manager: BaseConfigManager,
         events_manager: EventsManager | None = None,
     ):
-        super().__init__(websocket,call_config, provider_config, config_manager, events_manager)
+        super().__init__(
+            websocket=websocket,
+            call_config=call_config,
+            device=device,
+            streaming_provider_config=provider_config,
+            config_manager=config_manager,
+            events_manager=events_manager,
+        )
 
         self.call_config = call_config
         self.provider_config = provider_config
         self.config_manager = config_manager
-        
+        self.device = device
 
     async def start(self):
-        stream_id = self.call_config.twilio_id # type: ignore
-        
+        stream_id = self.device.telephony_stream_id 
+        assert stream_id is not None, "Stream ID must be provided"
+
         transport = FastAPIWebsocketTransport(
             websocket=self.websocket,
             params=FastAPIWebsocketParams(
@@ -56,7 +70,7 @@ class PipecatStreamingProvider(BaseStreamingProvider):
                 vad_enabled=True,
                 vad_analyzer=SileroVADAnalyzer(),
                 vad_audio_passthrough=True,
-                serializer=TwilioFrameSerializer(stream_id),
+                serializer=TwilioFrameSerializer(stream_id, self.device),
             ),
         )
 
@@ -64,9 +78,9 @@ class PipecatStreamingProvider(BaseStreamingProvider):
 
         stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY", ""))
 
-        tts = CartesiaTTSService(
-            api_key=os.getenv("CARTESIA_API_KEY", ""),
-            voice_id="79a125e8-cd45-4c13-8a67-188112f4dd22",  # British Lady
+        tts = ElevenLabsTTSService(
+            api_key=os.getenv("ELEVENLABS_API_KEY", ""),
+            voice_id="21m00Tcm4TlvDq8ikWAM",
         )
 
         messages = [

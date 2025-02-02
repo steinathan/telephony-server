@@ -1,9 +1,10 @@
 from typing import AsyncGenerator
 
 from loguru import logger
-from pydantic.v1 import BaseModel, parse_obj_as
+from pydantic.v1 import parse_obj_as
 from redis.asyncio import Redis
 
+from telephony.models.model import BaseModel
 from telephony.utils.redis import initialize_redis
 from telephony.utils.singleton import Singleton
 

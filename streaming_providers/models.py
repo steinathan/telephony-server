@@ -1,10 +1,7 @@
-from pydantic import BaseModel
-
 from telephony.models.model import TypedModel
 
 
-class BaseMessage(BaseModel):
-    type: str = "base_message"
+class BaseMessage(TypedModel, type="base_message"):
     message: str
 
 

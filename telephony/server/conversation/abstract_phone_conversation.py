@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import asyncio
 from typing import Generic, Literal, Optional, TypeVar, Union
 
 from fastapi import WebSocket
@@ -15,32 +16,18 @@ from telephony.utils.events_manager import EventsManager
 
 from telephony.models.model import PhoneCallDirection
 
-TelephonyOutputDeviceType = TypeVar(
-    "TelephonyOutputDeviceType",
-    bound=Union[TwilioOutputDevice, PlivoOutputDevice],
-)
-
 OutputDeviceType = TypeVar("OutputDeviceType", bound=AbstractOutputDevice)
-
-LOW_INTERRUPT_SENSITIVITY_THRESHOLD = 0.9
 
 TelephonyProvider = Literal["twilio", "vonage", "plivo"]
 
 
 class AudioPipeline(AbstractWorker[bytes], Generic[OutputDeviceType]):
     output_device: OutputDeviceType
-    events_manager: EventsManager
+    events_manager: EventsManager = EventsManager()
     id: str
 
-    def receive_audio(self, chunk: bytes):
-        self.consume_nonblocking(chunk)
 
-    @abstractmethod
-    def is_active(self):
-        raise NotImplementedError
-
-
-class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
+class AbstractPhoneConversation:
     telephony_provider: TelephonyProvider
 
     def __init__(
@@ -50,29 +37,20 @@ class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
         from_phone: str,
         to_phone: str,
         base_url: str,
-        output_device: TelephonyOutputDeviceType,
+        conversation_id: str ,
+        output_device: AbstractOutputDevice,
         config_manager: BaseConfigManager,
-        conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
     ):
         self.streaming_provider = streaming_provider
-        conversation_id = conversation_id
-        # ctx_conversation_id.set(conversation_id)
+        self.conversation_id = conversation_id
 
+        self.events_manager = events_manager or EventsManager()
         self.direction = direction
         self.from_phone = from_phone
         self.to_phone = to_phone
         self.base_url = base_url
         self.output_device = output_device
-        super().__init__(
-            # output_device,
-            # transcriber_factory.create_transcriber(transcriber_config),
-            # agent_factory.create_agent(agent_config),
-            # synthesizer_factory.create_synthesizer(synthesizer_config),
-            # conversation_id=conversation_id,
-            # events_manager=events_manager,
-            # speed_coefficient=speed_coefficient,
-        )
         self.config_manager = config_manager
 
     def attach_ws(self, ws: WebSocket):
@@ -83,10 +61,15 @@ class AbstractPhoneConversation(AudioPipeline[TelephonyOutputDeviceType]):
     @abstractmethod
     async def attach_ws_and_start(self, ws: WebSocket):
         pass
-    
+
     async def start(self):
+        self.is_active = True
         await self.streaming_provider.start()
+        self.is_active = False
+        # asyncio.create_task(self.streaming_provider.start())
 
     async def terminate(self):
-        self.events_manager.publish_event(PhoneCallEndedEvent(conversation_id=self.id))
-        await super().terminate()
+        self.is_active = False
+        logger.warning(f"TODO: Terminating  call: {self.conversation_id}")
+        self.events_manager.publish_event(PhoneCallEndedEvent(conversation_id=self.conversation_id))
+        pass

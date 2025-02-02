@@ -17,8 +17,7 @@ from streaming_providers.models import StreamingProviderConfig
 # so i should create a factory function that returns the agent
 # but since Jay is expected to be ran in a different way, I'm not sure how to do that.
 
-class JayStreamingConfig(StreamingProviderConfig):
-    type: str = "streaming_provider_jay"
+class JayStreamingConfig(StreamingProviderConfig, type="streaming_provider_jay"):
     agent_id: str
     deepgram_api_key: str | None = None
     llm_model: str | None = "gpt-4o"

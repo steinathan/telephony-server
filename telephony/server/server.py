@@ -5,7 +5,6 @@ import typing
 
 from fastapi import APIRouter, Form, Request, Response
 from loguru import logger
-from pydantic import BaseModel
 
 from streaming_providers.default_factory import (
     AbstractStreamingProviderFactory,
@@ -19,6 +18,7 @@ from telephony.config_manager.base_config_manager import (
     BaseConfigManager,
 )
 from telephony.models.events import RecordingEvent
+from telephony.models.model import BaseModel
 from telephony.models.telephony import TwilioCallConfig, TwilioConfig
 from telephony.server.router import CallsRouter
 from telephony.utils.events_manager import EventsManager

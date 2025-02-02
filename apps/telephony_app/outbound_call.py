@@ -80,11 +80,7 @@ async def main():
             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
             auth_token=os.environ["TWILIO_AUTH_TOKEN"],
         ),
-        telephony_params={
-            "Record": "true",
-            "MachineDetection": "Enable",
-            "MachineDetectionTimeout": "2",
-        },
+        telephony_params={},
         streaming_provider_config=PipecatStreamingConfig(
             deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
             openai_api_key=os.environ["OPENAI_API_KEY"],
