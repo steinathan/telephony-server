@@ -6,7 +6,10 @@ from fastapi import APIRouter, HTTPException, WebSocket
 from loguru import logger
 
 from streaming_providers.base import BaseStreamingProvider
-from streaming_providers.default_factory import AbstractStreamingProviderFactory, DefaultStreamingProviderFactory
+from streaming_providers.default_factory import (
+    AbstractStreamingProviderFactory,
+    DefaultStreamingProviderFactory,
+)
 from streaming_providers.models import StreamingProviderConfig
 from telephony.config_manager.base_config_manager import (
     BaseCallConfig,
@@ -29,7 +32,7 @@ class CallsRouter:
         base_url: str,
         config_manager: BaseConfigManager,
         streaming_factory: AbstractStreamingProviderFactory,
-        streaming_provider_config: StreamingProviderConfig,
+        # streaming_provider_config: StreamingProviderConfig,
         events_manager: EventsManager | None = None,
     ):
         super().__init__()
@@ -37,7 +40,7 @@ class CallsRouter:
         self.streaming_factory = streaming_factory
         self.config_manager = config_manager
         self.events_manager = events_manager
-        self.streaming_provider_config = streaming_provider_config
+        # self.streaming_provider_config = streaming_provider_config
 
         self.router = APIRouter()
         self.router.websocket("/connect_call/{id}")(self.connect_call)
@@ -64,7 +67,7 @@ class CallsRouter:
                 conversation_id=conversation_id,
                 events_manager=events_manager,
                 direction=call_config.direction,
-                device=device
+                device=device,
             )
         else:
             raise ValueError(f"Unknown call config type {call_config.type}")
@@ -78,17 +81,17 @@ class CallsRouter:
             call_config = await self.config_manager.get_config(id)
             if not call_config:
                 raise HTTPException(status_code=400, detail="No active phone call")
-            
+
             device = AbstractOutputDevice()
             streaming_provider = self.streaming_factory.create_streaming_provider(
                 websocket=websocket,
-                device=device, # type: ignore
-                streaming_provider_config=self.streaming_provider_config,
+                device=device,  # type: ignore
+                streaming_provider_config=call_config.streaming_provider_config,
                 call_config=call_config,
                 config_manager=self.config_manager,
                 events_manager=self.events_manager,
             )
-   
+
             phone_conversation = self._from_call_config(
                 streaming_provider=streaming_provider,
                 base_url=self.base_url,
@@ -96,7 +99,7 @@ class CallsRouter:
                 config_manager=self.config_manager,
                 conversation_id=id,
                 events_manager=self.events_manager,
-                device=device
+                device=device,
             )
 
             await phone_conversation.attach_ws_and_start(websocket)

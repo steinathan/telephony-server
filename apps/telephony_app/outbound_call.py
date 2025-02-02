@@ -8,7 +8,6 @@ from telephony.config_manager.redis_config_manager import RedisConfigManager
 from telephony.models.telephony import TwilioConfig
 from telephony.outbound_call import OutboundCall
 
-from cuid2 import Cuid
 
 from telephony.utils.strings import create_conversation_id
 
@@ -73,21 +72,23 @@ async def main():
     outbound_call = OutboundCall(
         conversation_id=create_conversation_id("outbound"),
         base_url=BASE_URL,
-        to_phone="+12097094496",
-        from_phone="+12023352748",
+        to_phone=os.environ["TO_PHONE"],
+        from_phone=os.environ["FROM_PHONE"],
         config_manager=config_manager,
         telephony_config=TwilioConfig(
             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
             auth_token=os.environ["TWILIO_AUTH_TOKEN"],
         ),
-        telephony_params={},
+        telephony_params={
+            "Record": "false",
+        },
         streaming_provider_config=PipecatStreamingConfig(
             deepgram_api_key=os.environ["DEEPGRAM_API_KEY"],
             openai_api_key=os.environ["OPENAI_API_KEY"],
             elevenlabs_api_key=os.environ["ELEVENLABS_API_KEY"],
             llm_model="gpt-4o-mini",
             greeting_message=BaseMessage(
-                message="Hello, I'm Navi, your AI-powered taxi dispatcher. How can I help you today?"
+                message="Thanks for calling, I'm Navi, your AI-powered taxi dispatcher. How can I help you today?"
             ),
             prompt_premble=BaseMessage(message=system_prompt),
         ),

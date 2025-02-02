@@ -27,6 +27,7 @@ from telephony.utils.strings import create_conversation_id
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
     url: str
+    streaming_provider_config: StreamingProviderConfig
 
 
 class TwilioInboundCallConfig(AbstractInboundCallConfig):
@@ -38,14 +39,12 @@ class TelephonyServer:
         self,
         base_url: str,
         config_manager: BaseConfigManager,
-        streaming_provider_config: StreamingProviderConfig,
         streaming_factory: AbstractStreamingProviderFactory = DefaultStreamingProviderFactory(),
         inbound_call_configs: List[AbstractInboundCallConfig] = [],
         events_manager: Optional[EventsManager] = None,
     ):
         self.base_url = base_url
         self.router = APIRouter()
-        self.steaming_provider_config = streaming_provider_config
         self.config_manager = config_manager
         self.events_manager = events_manager
         self.router.include_router(
@@ -53,7 +52,6 @@ class TelephonyServer:
                 base_url=base_url,
                 config_manager=self.config_manager,
                 streaming_factory=streaming_factory,
-                streaming_provider_config=self.steaming_provider_config,
                 events_manager=self.events_manager,
             ).get_router()
         )
@@ -103,12 +101,13 @@ class TelephonyServer:
     ):
         async def twilio_route(
             twilio_config: TwilioConfig,
+            streaming_provider_config: StreamingProviderConfig,
             twilio_sid: str = Form(alias="CallSid"),
             twilio_from: str = Form(alias="From"),
             twilio_to: str = Form(alias="To"),
         ) -> Response:
             call_config = TwilioCallConfig(
-                streaming_provider_config=self.steaming_provider_config,
+                streaming_provider_config=streaming_provider_config,
                 twilio_config=twilio_config,
                 twilio_sid=twilio_sid,
                 from_phone=twilio_from,

@@ -2,6 +2,8 @@
 
 ## Overview & Idea
 
+> This project is inspired by Vocode
+
 **Telephony Server** is a powerful bridge that connects telephony providers ([Twilio](https://www.twilio.com), [Vonage](https://www.vonage.com), [Plivo](https://www.plivo.com), etc.) with real-time communication platforms ([LiveKit](https://www.livekit.io), [Jay.so](https://www.jay.so), [Pipecat](https://www.pipecat.ai), etc.). It enables seamless call routing, robust metrics collection, and observability features for enhanced telephony operations.
 
 ## Features
@@ -35,14 +37,16 @@ cd telephony-server
 Create a `.env` file and configure your credentials:
 
 ```env
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
-VONAGE_API_KEY=your_vonage_key
-VONAGE_API_SECRET=your_vonage_secret
-PLIVO_AUTH_ID=your_plivo_id
-PLIVO_AUTH_TOKEN=your_plivo_token
-LIVEKIT_API_KEY=your_livekit_key
-LIVEKIT_API_SECRET=your_livekit_secret
+BASE_URL=6s6sgpwn-1338.uks1.devtunnels.ms
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+DEEPGRAM_API_KEY=
+OPENAI_API_KEY=
+ELEVENLABS_API_KEY=
+
+
+TO_PHONE=
+FROM_PHONE=
 ```
 
 ### Installation Steps
@@ -165,6 +169,14 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+You'd need to run the server before making the call, also make sure redis is working locally
+
+```sh
+$ uvicorn apps.telephony_app.main:app --port 1338
+```
+
+Then make an outbound call
+
 ```sh
 $ python -m apps.telephony_app.outbound_call
 ```
@@ -177,7 +189,7 @@ You can deploy using Docker:
 docker-compose up --build -d
 ```
 
-## Observability & Monitoring
+## Observability & Monitoring (soon)
 
 - **Prometheus & Grafana** for call metrics visualization.
 - **Logging with ELK Stack (Elasticsearch, Logstash, Kibana)**.
@@ -191,6 +203,8 @@ We welcome contributions! Feel free to open issues and submit pull requests.
 MIT License
 
 ---
+
+> Psst, I'm looking for a good job in the AI-ish, voice AI space, if you're hiring, kindly reach out to me on linkedin
 
 **Author:** Navicstein Chinemerem <br/>
 **Contact:** navicsteinrotciv@gmail.com <br/>

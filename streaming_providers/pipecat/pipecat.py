@@ -59,7 +59,7 @@ class PipecatStreamingProvider(BaseStreamingProvider):
         self.device = device
 
     async def start(self):
-        stream_id = self.device.telephony_stream_id 
+        stream_id = self.device.telephony_stream_id
         assert stream_id is not None, "Stream ID must be provided"
 
         transport = FastAPIWebsocketTransport(
@@ -86,7 +86,8 @@ class PipecatStreamingProvider(BaseStreamingProvider):
         messages = [
             {
                 "role": "system",
-                "content": "You are a helpful LLM in an audio call. Your goal is to demonstrate your capabilities in a succinct way. Your output will be converted to audio so don't include special characters in your answers. Respond to what the user said in a creative and helpful way.",
+                "content": self.provider_config.prompt_premble.message
+                + "\n Your output will be converted to audio so don't include special characters in your answers.",
             },
         ]
 
@@ -109,10 +110,17 @@ class PipecatStreamingProvider(BaseStreamingProvider):
 
         @transport.event_handler("on_client_connected")
         async def on_client_connected(transport, client):
-            # Kick off the conversation.
-            messages.append(
-                {"role": "system", "content": "Please introduce yourself to the user."}
-            )
+            # since pipecat don't have a way to send the greeting message,
+            # we need to instruct the agent to first send the greeting message as part of the prompt
+            if self.provider_config.greeting_message is not None:
+                messages.append(
+                    {
+                        "role": "system",
+                        "content": "Start with the following message: "
+                        + self.provider_config.greeting_message.message,
+                    }
+                )
+
             await task.queue_frames([context_aggregator.user().get_context_frame()])
 
         @transport.event_handler("on_client_disconnected")
