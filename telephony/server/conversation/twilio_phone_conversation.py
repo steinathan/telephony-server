@@ -1,7 +1,4 @@
-import asyncio
-import base64
 import json
-import os
 from enum import Enum
 from typing import Optional
 
@@ -17,37 +14,12 @@ from telephony.server.conversation.abstract_phone_conversation import (
     AbstractPhoneConversation,
 )
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
-from telephony.server.output_devices.twilio_output_device import (
-    ChunkFinishedMarkMessage,
-    TwilioOutputDevice,
-)
-from telephony.server.state_manager.phone_state_manager import (
-    PhoneConversationStateManager,
-)
 from telephony.utils.events_manager import EventsManager
 from telephony.models.telephony import PhoneCallDirection
 
 
 class TwilioPhoneConversationWebsocketAction(Enum):
     CLOSE_WEBSOCKET = 1
-
-
-class TwilioPhoneConversationStateManager(PhoneConversationStateManager):
-    def __init__(self, conversation: "TwilioPhoneConversation"):
-        super().__init__(conversation=conversation)
-        self._twilio_phone_conversation = conversation
-
-    def get_twilio_config(self):
-        return self._twilio_phone_conversation.twilio_config
-
-    def get_twilio_sid(self):
-        return self._twilio_phone_conversation.twilio_sid
-
-    def create_twilio_client(self):
-        return TwilioClient(
-            base_url=self._twilio_phone_conversation.base_url,
-            maybe_twilio_config=self.get_twilio_config(),
-        )
 
 
 class TwilioPhoneConversation(AbstractPhoneConversation):  # noqa: F821
@@ -87,8 +59,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation):  # noqa: F821
         )
         self.twilio_sid = twilio_sid
 
-    def create_state_manager(self) -> TwilioPhoneConversationStateManager:
-        return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
         super().attach_ws(ws)
@@ -107,8 +77,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation):  # noqa: F821
         await self.terminate()
 
     async def _wait_for_twilio_start(self, ws: WebSocket):
-        assert isinstance(self.output_device, TwilioOutputDevice)
-
         while True:
             message = await ws.receive_text()
             if not message:

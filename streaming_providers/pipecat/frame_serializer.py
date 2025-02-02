@@ -21,8 +21,6 @@ from pipecat.frames.frames import (
 from pipecat.serializers.base_serializer import FrameSerializer, FrameSerializerType
 
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
-from telephony.server.output_devices.audio_chunk import AudioChunk
-from telephony.server.worker import InterruptibleEvent
 
 
 class TwilioFrameSerializer(FrameSerializer):
@@ -58,8 +56,6 @@ class TwilioFrameSerializer(FrameSerializer):
                 "streamSid": self._stream_sid,
                 "media": {"payload": payload},
             }
-
-            # self.device.consume_nonblocking(InterruptibleEvent(AudioChunk(data=data)))
 
             return json.dumps(answer)
 

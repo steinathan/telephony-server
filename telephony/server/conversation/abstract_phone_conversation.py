@@ -1,6 +1,5 @@
 from abc import abstractmethod
-import asyncio
-from typing import Generic, Literal, Optional, TypeVar, Union
+from typing import Literal, Optional, TypeVar
 
 from fastapi import WebSocket
 from loguru import logger
@@ -9,9 +8,6 @@ from streaming_providers.base import BaseStreamingProvider
 from telephony.config_manager.base_config_manager import BaseConfigManager
 from telephony.models.events import PhoneCallEndedEvent
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
-from telephony.server.output_devices.pilvo_output_device import PlivoOutputDevice
-from telephony.server.output_devices.twilio_output_device import TwilioOutputDevice
-from telephony.server.worker import AbstractWorker
 from telephony.utils.events_manager import EventsManager
 
 from telephony.models.model import PhoneCallDirection
@@ -19,12 +15,6 @@ from telephony.models.model import PhoneCallDirection
 OutputDeviceType = TypeVar("OutputDeviceType", bound=AbstractOutputDevice)
 
 TelephonyProvider = Literal["twilio", "vonage", "plivo"]
-
-
-class AudioPipeline(AbstractWorker[bytes], Generic[OutputDeviceType]):
-    output_device: OutputDeviceType
-    events_manager: EventsManager = EventsManager()
-    id: str
 
 
 class AbstractPhoneConversation:
@@ -62,14 +52,9 @@ class AbstractPhoneConversation:
     async def attach_ws_and_start(self, ws: WebSocket):
         pass
 
-    async def start(self):
-        self.is_active = True
+    async def start_until_completed(self):
         await self.streaming_provider.start()
-        self.is_active = False
-        # asyncio.create_task(self.streaming_provider.start())
 
     async def terminate(self):
-        self.is_active = False
         logger.warning(f"TODO: Terminating  call: {self.conversation_id}")
         self.events_manager.publish_event(PhoneCallEndedEvent(conversation_id=self.conversation_id))
-        pass

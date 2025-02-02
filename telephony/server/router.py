@@ -20,7 +20,6 @@ from telephony.server.conversation.twilio_phone_conversation import (
     TwilioPhoneConversation,
 )
 from telephony.server.output_devices.abstract_output_device import AbstractOutputDevice
-from telephony.server.output_devices.twilio_output_device import TwilioOutputDevice
 from telephony.utils.events_manager import EventsManager
 
 
@@ -80,7 +79,7 @@ class CallsRouter:
             if not call_config:
                 raise HTTPException(status_code=400, detail="No active phone call")
             
-            device = TwilioOutputDevice(ws=websocket)
+            device = AbstractOutputDevice()
             streaming_provider = self.streaming_factory.create_streaming_provider(
                 websocket=websocket,
                 device=device, # type: ignore
